@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/upload-artifact@v4
         with:
           python-version: "3.10"
 
@@ -60,7 +60,7 @@ jobs:
           pytest --cov=backend/app --cov-report=xml backend/tests/
 
       - name: Upload code coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: code-coverage-report
           path: coverage.xml
