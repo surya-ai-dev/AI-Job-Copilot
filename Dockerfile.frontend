@@ -1,0 +1,28 @@
+# Dockerfile.frontend
+# Production Multi-Stage Dockerfile for Next.js Frontend Application
+
+# Stage 1: Install packages and build
+FROM node:18-alpine as builder
+
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm ci
+
+COPY frontend/ .
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN npm run build
+
+# Stage 2: Final lightweight static server stage
+FROM node:18-alpine
+
+WORKDIR /app
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+
+ENV NODE_ENV production
+ENV PORT 3000
+EXPOSE 3000
+
+CMD ["npm", "start"]

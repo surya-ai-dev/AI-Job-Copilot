@@ -1,0 +1,30 @@
+# .dockerignore
+# Exclude local directories and files from Docker builds
+
+.git
+.vscode
+.idea
+*.swp
+*.log
+
+# Backend specific ignores
+backend/__pycache__/
+backend/venv/
+backend/.venv/
+backend/dist/
+backend/build/
+backend/*.egg-info/
+**/*.pyc
+**/*.pyo
+
+# Frontend specific ignores
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Storage & Database & Secrets
+storage/*
+database/*.db
+database/*.sqlite
+.env
+.env.local

@@ -1,0 +1,25 @@
+# pyproject.toml
+# Development tooling configurations for formatting and static type checking
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "I"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+strict = false

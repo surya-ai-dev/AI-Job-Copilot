@@ -1,0 +1,30 @@
+# Dockerfile.backend
+# Production Multi-Stage Dockerfile for FastAPI Python Backend Application
+
+# Stage 1: Build dependency wheel packages
+FROM python:3.10-alpine as builder
+
+WORKDIR /app
+COPY backend/requirements.txt .
+
+RUN apk add --no-cache gcc musl-dev libffi-dev postgresql-dev && \
+    pip install --user --no-cache-dir -r requirements.txt
+
+# Stage 2: Final lightweight runner stage
+FROM python:3.10-alpine
+
+WORKDIR /app
+
+# Copy python user package dependencies
+COPY --from=builder /root/.local /root/.local
+COPY backend/app ./backend/app
+COPY database/migrations ./database/migrations
+COPY alembic.ini .
+
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONPATH=/app
+
+EXPOSE 8000
+
+# Start app using gunicorn or uvicorn
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
