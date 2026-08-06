@@ -57,6 +57,17 @@ jobs:
         run: |
           uv pip install --system -r backend/requirements.txt
 
+      # Temporary debug step
+      - name: Verify Installed Packages
+        run: |
+          python -m pip show pdfplumber || true
+          python -c "import pdfplumber; print('pdfplumber installed successfully')"
+
+      - name: Show Requirements
+        run: |
+          echo "===== backend/requirements.txt ====="
+          cat backend/requirements.txt
+
       - name: Run Alembic Migrations
         run: |
           alembic upgrade head
