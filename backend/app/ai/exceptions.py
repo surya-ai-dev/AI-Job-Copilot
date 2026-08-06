@@ -15,3 +15,13 @@ class ResumeFileNotFoundError(ResumeParserError):
 class TextExtractionError(ResumeParserError):
     """Raised when text extraction from a resume fails or results in empty text."""
     pass
+
+
+class JobParserError(Exception):
+    """Base exception class for all job description parsing errors."""
+    pass
+
+
+class InvalidJobInputError(JobParserError):
+    """Raised when the input job description text or file is invalid or empty."""
+    pass

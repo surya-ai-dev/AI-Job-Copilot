@@ -67,6 +67,34 @@ class RuleBasedCandidateProfileExtractor(BaseCandidateProfileExtractor):
         summary = self._parse_summary(sections.get("summary", []))
         skills = self._parse_skills(sections.get("skills", []))
         experience = self._parse_experience(sections.get("experience", []))
+        if not experience and summary:
+            # Detect years of experience pattern
+            years = 0
+            months_match = re.search(r'(\d+)\s*(?:months?|mths?)', summary, re.IGNORECASE)
+            if months_match:
+                years = max(int(months_match.group(1)) // 12, 1)
+            else:
+                years_match = re.search(r'(\d+)\+?\s*(?:years?|yrs?)', summary, re.IGNORECASE)
+                if years_match:
+                    years = int(years_match.group(1))
+            
+            if years > 0:
+                role = "Professional"
+                role_match = re.search(r'^([^,.]+?)(?:\s+with|\s+having|\s+has)\s+\d+', summary, re.IGNORECASE)
+                if role_match:
+                    role = role_match.group(1).strip()
+                
+                # Create duplicate synthetic ExperienceItems to accumulate candidate years
+                for _ in range(years):
+                    experience.append(ExperienceItem(
+                        company="Inferred from Summary",
+                        role=role,
+                        start_date="Unknown",
+                        end_date="Unknown",
+                        description=summary,
+                        highlights=[]
+                    ))
+
         projects = self._parse_projects(sections.get("projects", []))
         education = self._parse_education(sections.get("education", []))
         certifications = self._parse_certifications(sections.get("certifications", []))
@@ -263,6 +291,8 @@ class RuleBasedCandidateProfileExtractor(BaseCandidateProfileExtractor):
                     current_item.role = parts[1].strip()
                     if len(parts) >= 3:
                         current_item.start_date = parts[2].strip()
+                        if len(parts) >= 4:
+                            current_item.end_date = parts[3].strip()
                 else:
                     current_item.role = cleaned
             else:

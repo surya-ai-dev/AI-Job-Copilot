@@ -39,7 +39,9 @@ class JobRepository:
     async def list_jobs(self, user_id: uuid.UUID) -> List[JobModel]:
         """List all parsed jobs for a user."""
         result = await self.db.execute(
-            select(JobModel).where(JobModel.user_id == user_id).order_by(JobModel.created_at.desc())
+            select(JobModel)
+            .where(JobModel.user_id == user_id)
+            .order_by(JobModel.created_at.desc(), JobModel.id.desc())
         )
         return result.scalars().all()
 
