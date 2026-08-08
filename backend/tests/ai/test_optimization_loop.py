@@ -198,12 +198,10 @@ def test_loop_handles_validation_failures_and_rollback(base_candidate, base_job)
 
 
 
-    with patch.object(controller.matcher, "match") as mock_match, \
-
-         patch.object(controller.validator, "validate") as mock_validate:
-
-
-
+    with (
+    patch.object(controller.matcher, "match") as mock_match,
+    patch.object(controller.validator, "validate") as mock_validate,
+):
         mock_match.return_value.overall_match_score = 75.0
 
         # Mock validation fail
@@ -299,10 +297,10 @@ def test_loop_exception_handling_resilience(base_candidate, base_job):
     controller = OptimizationLoopController()
 
 
-
-    with patch.object(controller.matcher, "match") as mock_match, \
-
-         patch.object(controller.rewriter, "rewrite") as mock_rewrite:
+    with (
+        patch.object(controller.matcher, "match") as mock_match,
+        patch.object(controller.rewriter, "rewrite") as mock_rewrite,
+    ):
 
 
 
