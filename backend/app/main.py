@@ -50,6 +50,8 @@ async def app_exception_handler(request: Request, exc: BaseAppException):
         }
     )
 
+from backend.app.api.v1.endpoints.resume_optimizer import router as resume_optimizer_router
+
 # Expose base health check routes
 @app.get("/health/api", tags=["System Health"])
 async def api_health():
@@ -61,6 +63,7 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(user_router, prefix="/api/v1")
 
 # Register specific sub-path routers first to prevent dynamic path parameter overlaps (e.g., /resume/{id} matching /resume/optimize)
+app.include_router(resume_optimizer_router, prefix="/api/v1")
 app.include_router(optimization_router, prefix="/api/v1")
 app.include_router(resume_router, prefix="/api/v1")
 

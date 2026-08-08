@@ -34,3 +34,19 @@ async def get_async_db():
             raise
         finally:
             await session.close()
+
+
+# Event listener to preserve primary keys in __dict__ after expiration to prevent MissingGreenlet
+from sqlalchemy import event
+from sqlalchemy.orm import Mapper, attributes
+
+@event.listens_for(Mapper, 'expire')
+def receive_expire(target, attrs):
+    if target is None:
+        return
+    state = attributes.instance_state(target)
+    if state.key is not None:
+        pk_vals = state.key[1]
+        for i, col in enumerate(state.mapper.primary_key):
+            attr_name = col.key
+            target.__dict__[attr_name] = pk_vals[i]

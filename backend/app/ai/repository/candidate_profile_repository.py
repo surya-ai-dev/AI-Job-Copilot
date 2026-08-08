@@ -93,7 +93,7 @@ class CandidateProfileRepository:
         result = await self.db.execute(
             select(CandidateProfileModel)
             .where(CandidateProfileModel.user_id == user_id)
-            .order_by(CandidateProfileModel.created_at.desc())
+            .order_by(CandidateProfileModel.created_at.desc(), CandidateProfileModel.id.desc())
         )
         return result.scalars().first()
 
@@ -161,6 +161,6 @@ class CandidateProfileRepository:
         result = await self.db.execute(
             select(CandidateProfileModel)
             .where(CandidateProfileModel.user_id == user_id)
-            .order_by(CandidateProfileModel.created_at.desc())
+            .order_by(CandidateProfileModel.created_at.desc(), CandidateProfileModel.id.desc())
         )
         return result.scalars().all()

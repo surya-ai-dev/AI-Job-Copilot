@@ -71,20 +71,20 @@ graph TD
 
     Auth --> Shared
     User --> Shared
-    
+
     Job --> AI_Eng
     Job --> Store_Eng
     Job --> Shared
-    
+
     Resume --> AI_Eng
     Resume --> Store_Eng
     Resume --> Shared
-    
+
     Email --> AI_Eng
     Email --> Shared
-    
+
     Dash --> Shared
-    
+
     AI_Eng --> Shared
     Store_Eng --> Shared
 ```

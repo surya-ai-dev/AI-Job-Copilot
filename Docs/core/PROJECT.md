@@ -7,7 +7,7 @@
 
 ## 1. Executive Summary
 
-Applying for jobs in the modern labor market is an asymmetric challenge. Employers deploy advanced Applicant Tracking Systems (ATS), automated keyword parsers, and machine learning screeners to filter and discard up to 95% of incoming resumes in seconds. To stay competitive, job seekers must customize their professional profile and outreach message for every single role they apply to. 
+Applying for jobs in the modern labor market is an asymmetric challenge. Employers deploy advanced Applicant Tracking Systems (ATS), automated keyword parsers, and machine learning screeners to filter and discard up to 95% of incoming resumes in seconds. To stay competitive, job seekers must customize their professional profile and outreach message for every single role they apply to.
 
 Currently, this tailoring process is manual, repetitive, and time-consuming, taking between 20 and 45 minutes per application. Consequently, job seekers face a difficult choice: apply with a single generic resume (yielding low conversion rates) or spend hours customizing each application (limiting the size of their application pipeline).
 
@@ -33,7 +33,7 @@ This Software Requirements Specification (SRS) details the business objectives, 
 
 ## 2. Project Vision
 
-The long-term vision of **AI Job Copilot** is to build a comprehensive, candidate-side career assistant platform. 
+The long-term vision of **AI Job Copilot** is to build a comprehensive, candidate-side career assistant platform.
 
 While the initial version (MVP) focuses on simplifying resume tailoring and recruiter outreach for individual applications, the underlying system is designed to support a wider range of career services over time. As the platform data footprints grow with user interaction histories, the platform will evolve into a complete career guidance engine.
 
@@ -430,10 +430,10 @@ Implementing AI Job Copilot provides several benefits for job seekers:
 
 ## 20. Future Vision
 
-Version 1 (MVP) establishes the core features (resume tailoring, ingestion, and application tracking) needed to support a scalable career assistant. 
+Version 1 (MVP) establishes the core features (resume tailoring, ingestion, and application tracking) needed to support a scalable career assistant.
 
-Once these features are established, future updates can introduce advanced tools for long-term career growth. 
+Once these features are established, future updates can introduce advanced tools for long-term career growth.
 
-For example, the application tracking history can be used to generate analytics on interview conversions. The master profile database can be used by an AI Career Coach to identify skill gaps based on job trends, suggest relevant certifications, and prepare candidates for interviews through custom mock Q&A sessions. 
+For example, the application tracking history can be used to generate analytics on interview conversions. The master profile database can be used by an AI Career Coach to identify skill gaps based on job trends, suggest relevant certifications, and prepare candidates for interviews through custom mock Q&A sessions.
 
 Additionally, browser extensions and LinkedIn integrations can simplify application steps, transitioning the platform from a resume optimizer into a unified career copilot.

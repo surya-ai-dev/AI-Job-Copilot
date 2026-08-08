@@ -47,11 +47,11 @@ graph TD
     Gateway --> Auth_Svc
     Gateway --> App_Layer
     App_Layer --> Repo_Layer
-    
+
     App_Layer --> LangGraph
     App_Layer --> Gmail_API
     App_Layer --> OS_Disk
-    
+
     Repo_Layer --> Postgres
     App_Layer --> Redis
 ```

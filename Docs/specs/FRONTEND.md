@@ -93,7 +93,7 @@ The platform navigation is designed to help users complete tasks efficiently, us
 graph LR
     Login[Login Page] --> Register[Register Page]
     Login --> Dashboard[Dashboard Main View]
-    
+
     subgraph Dashboard_Workspace [Dashboard Workspace]
         Dashboard --> UploadMaster[Upload Master CV]
         Dashboard --> IngestJob[Ingest Job Listing]
@@ -166,18 +166,18 @@ flowchart TD
     Start([User Logs In]) --> UploadCheck{Active Master Resume?}
     UploadCheck -- No --> UploadPage[Upload Master DOCX Resume]
     UploadPage --> SaveMaster[Save parsed profile template]
-    
+
     SaveMaster --> IngestPage
     UploadCheck -- Yes --> IngestPage[Ingest Job: URL, file, or text]
-    
+
     IngestPage --> ParseScreen[View parsed requirements]
     ParseScreen --> Optimize[Trigger Optimization: Run AI tailor]
     Optimize --> ReviewScreen[Side-by-Side Review Screen]
-    
+
     ReviewScreen --> Edit{User makes manual changes?}
     Edit -- Yes --> ApplyChanges[Modify draft text fields]
     ApplyChanges --> ReviewScreen
-    
+
     Edit -- No: Approved --> Compile[Compile final PDF & Email Draft]
     Compile --> Action[Download PDF / Send Recruiter Email]
     Action --> Dashboard[Log application in history log]

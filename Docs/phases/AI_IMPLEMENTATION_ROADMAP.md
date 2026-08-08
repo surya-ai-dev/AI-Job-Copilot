@@ -33,7 +33,7 @@ This document serves as the single source of truth and architectural reference f
 
 ## 🎯 1. Project Goal
 
-The primary goal of the **AI Layer** is to close the gap between a candidate's credentials and target job requisitions. 
+The primary goal of the **AI Layer** is to close the gap between a candidate's credentials and target job requisitions.
 
 Specifically, the AI Layer must:
 1. **Optimize Resumes Iteratively**: Evaluate a user's master resume against any ingested job description and dynamically rewrite relevant sections (summaries, bullet points, skills taxonomy) in an agentic loop until the computed **ATS Compatibility Score reaches at least 90 / 100**.
@@ -80,28 +80,28 @@ flowchart TD
     JobParser --> Matcher[Resume Matching Agent]
     Matcher --> ATS[ATS Evaluation Agent]
     ATS --> ThresholdCheck{ATS Score >= 90?}
-    
+
     %% Optimization Loop
     ThresholdCheck -- No --> Optimizer[Resume Optimizer Agent]
     Optimizer --> ATS
-    
+
     %% Post-Optimization Workflow
     ThresholdCheck -- Yes --> Generator[Resume Generator Agent]
     Generator --> Detector[Contact Detection Agent]
     Detector --> ContactCheck{Contact Info Found?}
-    
+
     %% Recruiter outreach channel
     ContactCheck -- Yes --> CommGen[Generate Email & WhatsApp Drafts]
     CommGen --> ApprovalReq{Human Approval Action}
-    
+
     ApprovalReq -- Approved --> SendComm[Send Gmail / WhatsApp API]
     ApprovalReq -- Edit --> CommGen
     ApprovalReq -- Rejected --> StoreHist[Store History & CRM Logs]
-    
+
     SendComm --> StoreHist
     ContactCheck -- No --> SkipComm[Skip Communication]
     SkipComm --> StoreHist
-    
+
     %% Downstream Actions
     StoreHist --> Dash[Dashboard CRM Update]
     Dash --> PDFDownload[User Downloads Tailored Resume PDF / DOCX]
@@ -575,7 +575,7 @@ The following ideas are planned for the next system generation:
 ## 📝 11. Notes & Implementation Considerations
 
 > [!IMPORTANT]
-> **LLM Token Costs and Rate Limits**: 
+> **LLM Token Costs and Rate Limits**:
 > Multi-agent loops can be token-intensive. In Phase 5, optimization runs are capped at a maximum of 5 iterations per application. Implementing Redis caches on repeating prompts is critical.
 
 > [!TIP]

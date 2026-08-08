@@ -201,7 +201,7 @@ For the MVP, containers are managed using **Docker Compose** to run on a single 
 graph TD
     %% Public Network
     Public_Net([Public Network]) --> Nginx_C[Nginx Container]
-    
+
     subgraph DMZ_Zone [External Proxy DMZ]
         Nginx_C
     end
@@ -209,7 +209,7 @@ graph TD
     subgraph App_Zone [Isolated Private Network]
         Nginx_C -->|Route UI Requests| FE_C[Frontend Next.js Container]
         Nginx_C -->|Route API Requests| BE_C[Backend FastAPI Container]
-        
+
         BE_C -->|Read / Write SQL| DB_C[PostgreSQL Database Container]
         BE_C -->|Cache & Rate Limit| Cache_C[Redis Cache Container]
     end
@@ -259,30 +259,30 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
-    
+
     # DB Connections
     DATABASE_URL: PostgresDsn
     DB_POOL_SIZE: int = 20
     DB_MAX_OVERFLOW: int = 10
-    
+
     # Caches
     REDIS_URL: RedisDsn
-    
+
     # Storage Configurations
     STORAGE_TYPE: Literal["local", "s3"] = "local"
     STORAGE_PATH: str = "/storage"
     S3_BUCKET_NAME: str | None = None
-    
+
     # AI Engine Settings
     LLM_PROVIDER: Literal["gemini", "openai"] = "gemini"
     GEMINI_API_KEY: str | None = None
     OPENAI_API_KEY: str | None = None
-    
+
     # Email Settings
     GMAIL_CLIENT_ID: str | None = None
     GMAIL_CLIENT_SECRET: str | None = None
     GMAIL_REDIRECT_URI: str | None = None
-    
+
     # System Logging
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 

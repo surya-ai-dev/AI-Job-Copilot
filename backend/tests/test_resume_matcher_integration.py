@@ -109,75 +109,6 @@ async def setup_integration_tables(db_session: AsyncSession):
     yield
 
 
-@pytest.fixture
-async def seed_users_and_resumes(db_session: AsyncSession):
-    """Seeds database with User and Resume records to support ForeignKey integrity."""
-    from backend.app.auth.models.user_model import UserModel
-    from backend.app.resume.models.resume_model import ResumeModel
-
-    # Seed User A
-    user_a_id = uuid.uuid4()
-    user_a = UserModel(
-        id=user_a_id,
-        email=f"matcher_user_a_{uuid.uuid4().hex[:6]}@example.com",
-        hashed_password="hashed_password",
-        first_name="Jane",
-        last_name="Doe",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
-    )
-    db_session.add(user_a)
-
-    # Seed User B
-    user_id_b = uuid.uuid4()
-    user_b = UserModel(
-        id=user_id_b,
-        email=f"matcher_user_b_{uuid.uuid4().hex[:6]}@example.com",
-        hashed_password="hashed_password",
-        first_name="Bob",
-        last_name="Smith",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
-    )
-    db_session.add(user_b)
-
-    # Seed Resume A1
-    resume_a1_id = uuid.uuid4()
-    resume_a1 = ResumeModel(
-        id=resume_a1_id,
-        user_id=user_a_id,
-        file_path="/app/resumes/dummy_a1.pdf",
-        file_name="resume_v1.pdf",
-        file_size=1000,
-        content_type="application/pdf",
-        status="active",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
-    )
-    db_session.add(resume_a1)
-
-    # Seed Resume A2 (for profile replacement)
-    resume_a2_id = uuid.uuid4()
-    resume_a2 = ResumeModel(
-        id=resume_a2_id,
-        user_id=user_a_id,
-        file_path="/app/resumes/dummy_a2.pdf",
-        file_name="resume_v2.pdf",
-        file_size=2000,
-        content_type="application/pdf",
-        status="active",
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
-    )
-    db_session.add(resume_a2)
-
-    await db_session.flush()
-    return {
-        "user_a": user_a_id,
-        "user_b": user_id_b,
-        "resume_a1": resume_a1_id,
-        "resume_a2": resume_a2_id
-    }
 
 
 # ==========================================
@@ -201,9 +132,9 @@ async def test_integration_matcher_complete_workflow(db_session: AsyncSession, s
     pdf_stream = io.BytesIO(b"dummy pdf bytes")
     with patch("backend.app.ai.agents.resume_parser.pdfplumber.open", return_value=MockPDF(RESUME_STRONG_TEXT)):
         parsed_resume = resume_parser.parse_stream(pdf_stream, "pdf")
-    
+
     extracted_profile = profile_extractor.extract_profile(parsed_resume.raw_text)
-    
+
     # 2. Store Candidate Profile in DB
     db_profile = await profile_storage.store_candidate_profile(user_a, resume_a1, extracted_profile)
     assert db_profile.is_active is True
@@ -324,7 +255,7 @@ async def test_integration_matcher_user_isolation(db_session: AsyncSession, seed
     db_session.expire_all()
     active_a = await profile_storage.get_active_candidate_profile(user_a)
     active_b = await profile_storage.get_active_candidate_profile(user_b)
-    
+
     schema_a = CandidateProfileStorageResponse.from_orm_model(active_a)
     schema_b = CandidateProfileStorageResponse.from_orm_model(active_b)
     job_schema = job_parser.parse_job(JOB_JD_TEXT, "text")

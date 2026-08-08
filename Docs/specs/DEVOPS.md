@@ -39,7 +39,7 @@ graph TD
     subgraph Private_App_Network [Private Application Network]
         Proxy -->|Route UI Requests| FE[Next.js Client Service]
         Proxy -->|Route API Requests| BE[FastAPI Gateway Service]
-        
+
         BE -->|Async Tasks| Workers[Background Workers]
     end
 
@@ -47,7 +47,7 @@ graph TD
         BE -->|Read / Write SQL| DB[(PostgreSQL Database)]
         BE -->|Cache & Rate Limit| Cache[(Redis Cache)]
         BE -->|Save Documents| Storage[(Object Storage / S3)]
-        
+
         Workers --> DB
         Workers --> Storage
     end

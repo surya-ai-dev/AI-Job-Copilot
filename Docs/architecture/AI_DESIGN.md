@@ -10,7 +10,7 @@
 The core intelligence of **AI Job Copilot** is designed as a **multi-agent orchestration system** managed by **LangGraph**. This design replaces monolithic, single-prompt AI workflows with a network of single-purpose agents that coordinate tasks, validate outputs, and enforce business constraints.
 
 ### 1.1 Why Separate AI into Modules?
-Single-prompt architectures often struggle with complex, multi-step tasks. Asking a single LLM call to parse a job, compare it against a resume, optimize bullet points, draft an email, and format the output in JSON often leads to formatting errors and inaccurate results (hallucinations). 
+Single-prompt architectures often struggle with complex, multi-step tasks. Asking a single LLM call to parse a job, compare it against a resume, optimize bullet points, draft an email, and format the output in JSON often leads to formatting errors and inaccurate results (hallucinations).
 
 Separating these operations into specialized modules provides several key advantages:
 *   **Reduced Complexity**: Each agent focuses on a single task, improving accuracy and reducing formatting errors.
@@ -24,17 +24,17 @@ Separating these operations into specialized modules provides several key advant
 graph TD
     %% Input Routing
     RawInput[User Job Input] -->|Raw Text / File| DetAgent[Input Detection Agent]
-    
+
     subgraph AI_Engine [AI Core Engine]
         DetAgent -->|Parsed Channel| ExtAgent[Content Extraction Agent]
         ExtAgent -->|Plain Text| UnderstandAgent[Job Understanding Agent]
-        
+
         UnderstandAgent -->|Structured Job Schema| MatchAgent[Resume Matching Agent]
         MatchAgent -->|Gap Scorecard| OptAgent[Resume Optimization Agent]
-        
+
         OptAgent -->|Tailored Resume Draft| CriticAgent[Resume Evaluation Agent]
         CriticAgent -->|Rejection / Feedback| OptAgent
-        
+
         CriticAgent -->|Approved Draft| ValAgent[Output Validation Agent]
         ValAgent -->|Structured JSON| EmailAgent[Email Generation Agent]
     end
@@ -72,10 +72,10 @@ flowchart TD
     Understand --> Match[Resume Matching: analyze gaps & keyword alignment]
     Match --> Optimize[Resume Optimization: rephrase summary & technical bullets]
     Optimize --> Evaluate{Resume Evaluation: does it fabricate details?}
-    
+
     Evaluate -- Yes: Audit Failed --> Correct[Generate corrections & re-tailor]
     Correct --> Optimize
-    
+
     Evaluate -- No: Audit Passed --> Val[Output Validation: verify schema formats]
     Val --> Email[Email Generation: draft recruiter outreach email]
     Email --> End([Return Payload to Review Dashboard])
@@ -157,16 +157,16 @@ stateDiagram-v2
     ParseState --> MatchState : Calculate Gap Analysis
     MatchState --> OptimizeState : Run Optimization Agent
     OptimizeState --> CriticState : Verify Authenticity
-    
+
     CriticState --> OptimizeState : Resubmit for optimization (Audit Failed)
     CriticState --> EmailGenState : Approve tailored profile (Audit Passed)
-    
+
     EmailGenState --> CompileState : Draft email & Compile PDF
     CompileState --> ReviewState : Render side-by-side UI review screen
-    
+
     ReviewState --> CompletedState : User Approves / Sends
     ReviewState --> CompileState : User modifies text & re-compiles
-    
+
     CompletedState --> [*]
 ```
 
@@ -275,10 +275,10 @@ flowchart TD
     Start([Initialize Loop]) --> Generate[Optimizer: tailor resume text]
     Generate --> Audit[Critic: run validation audits]
     Audit --> Verify{Verify: any validation issues?}
-    
+
     Verify -- Yes --> UpdateInstructions[Add error details to instructions]
     UpdateInstructions --> Generate
-    
+
     Verify -- No --> Exit([Exit Loop & Compile Document])
 ```
 

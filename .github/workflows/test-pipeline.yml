@@ -53,52 +53,9 @@ jobs:
           python --version
           uv --version
 
-      - name: Temporary Pipeline Diagnostics
-        run: |
-          echo "=== 1. Git Information ==="
-          git rev-parse HEAD
-          git log --oneline -5
-          git branch -a
-          git status
-
-          echo "=== 2. Working Directory ==="
-          pwd
-          ls -la
-          ls -la backend
-
-          echo "=== 3. Requirements Verification ==="
-          echo "===== backend/requirements.txt ====="
-          cat backend/requirements.txt
-          echo "===== Line Count ====="
-          wc -l backend/requirements.txt
-          echo "===== Search for pdfplumber ====="
-          grep -n pdfplumber backend/requirements.txt || true
-
-          echo "=== 4. Dependency Resolution ==="
-          uv pip install --system -r backend/requirements.txt
-          python -m pip show pdfplumber || true
-          python -c "import pdfplumber; print(pdfplumber.__version__)" || true
-
-          echo "=== 5. Python Environment ==="
-          which python
-          python --version
-          which pip
-          pip --version
-
       - name: Install Dependencies
         run: |
           uv pip install --system -r backend/requirements.txt
-
-      # Temporary debug step
-      - name: Verify Installed Packages
-        run: |
-          python -m pip show pdfplumber || true
-          python -c "import pdfplumber; print('pdfplumber installed successfully')"
-
-      - name: Show Requirements
-        run: |
-          echo "===== backend/requirements.txt ====="
-          cat backend/requirements.txt
 
       - name: Run Alembic Migrations
         run: |

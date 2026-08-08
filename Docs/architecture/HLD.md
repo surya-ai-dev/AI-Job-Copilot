@@ -269,15 +269,15 @@ graph LR
     Input[Unstructured Input] --> Detection{Detection Agent}
     Detection -->|Job Post URL/Text| JP[Job Parser]
     Detection -->|Recruiter Email| EP[Email signature parser]
-    
+
     JP --> JV[Job Validator]
     JV -->|Validated Schema| RM[Resume Matcher]
     RM --> RO[Resume Optimizer]
     RO --> RR[Resume Reviewer]
-    
+
     RR -->|Approved| OV[Output Validator]
     RR -->|Rejected| RO
-    
+
     OV --> EG[Email Generator]
     EG --> Output[Completed Outputs]
 ```
@@ -307,16 +307,16 @@ stateDiagram-v2
     ParseState --> MatchState : Calculate Gap Analysis
     MatchState --> OptimizeState : Run Optimization Agent
     OptimizeState --> CriticState : Verify Authenticity
-    
+
     CriticState --> OptimizeState : Resubmit for optimization (Audit Failed)
     CriticState --> EmailGenState : Approve tailored profile (Audit Passed)
-    
+
     EmailGenState --> CompileState : Draft email & Compile PDF
     CompileState --> ReviewState : Render side-by-side UI review screen
-    
+
     ReviewState --> CompletedState : User Approves / Sends
     ReviewState --> CompileState : User modifies text & re-compiles
-    
+
     CompletedState --> [*]
 ```
 
