@@ -111,28 +111,33 @@ class JobApplicationOrchestrator:
             company = db_job.company_name
             role = db_job.job_title
             recruiter_email = db_job.recruiter_email
-            
-            db_draft = await self._run_with_retry(
-                self.email_service.generate_outreach_email,
-                state,
-                user_id,
-                company,
-                role,
-                db_opt.optimized_file_path,
-                recruiter_email
-            )
-            state.draft_id = db_draft.id
 
-            dispatcher.dispatch(EmailGeneratedEvent(
-                event_id=uuid.uuid4(),
-                timestamp=datetime.utcnow(),
-                event_name="EmailGenerated",
-                user_id=user_id,
-                draft_id=db_draft.id,
-                recipient_email=db_draft.recipient_email
-            ))
+            import re
+            email_regex = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+            if recruiter_email and re.match(email_regex, str(recruiter_email).strip()):
+                db_draft = await self._run_with_retry(
+                    self.email_service.generate_outreach_email,
+                    state,
+                    user_id,
+                    company,
+                    role,
+                    db_opt.optimized_file_path,
+                    recruiter_email
+                )
+                state.draft_id = db_draft.id
 
-            state.current_step = "HUMAN_REVIEW_WAITING"
+                dispatcher.dispatch(EmailGeneratedEvent(
+                    event_id=uuid.uuid4(),
+                    timestamp=datetime.utcnow(),
+                    event_name="EmailGenerated",
+                    user_id=user_id,
+                    draft_id=db_draft.id,
+                    recipient_email=db_draft.recipient_email
+                ))
+                state.current_step = "HUMAN_REVIEW_WAITING"
+            else:
+                state.current_step = "NO_EMAIL_WORKFLOW_STOPPED"
+
             state.status = "SUCCESS"
 
         except Exception as e:

@@ -51,9 +51,15 @@ async def generate_outreach(
         if not opt or opt.user_id != current_user.id:
             raise HTTPException(status_code=404, detail="Resume optimization details not found.")
 
-        company = analysis.metadata_json.get("company_name", "TargetCompany")
-        role = analysis.metadata_json.get("job_title", "TargetRole")
-        recruiter_email = analysis.metadata_json.get("recruiter_email")
+        # Load linked JobModel to retrieve company_name, job_title, and recruiter_email
+        from backend.app.jobs.models.job_model import JobModel
+        from sqlalchemy.future import select
+        job_query = await db.execute(select(JobModel).where(JobModel.id == analysis.job_id))
+        job = job_query.scalars().first()
+
+        company = job.company_name if job else analysis.metadata_json.get("company_name", "TargetCompany")
+        role = job.job_title if job else analysis.metadata_json.get("job_title", "TargetRole")
+        recruiter_email = (job.recruiter_email or analysis.metadata_json.get("recruiter_email")) if job else analysis.metadata_json.get("recruiter_email")
 
         return await service.generate_outreach_email(
             user_id=current_user.id,

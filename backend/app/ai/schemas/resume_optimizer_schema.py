@@ -386,6 +386,14 @@ class ResumeOptimizationResponse(BaseModel):
 
     )
 
+    email_draft_id: Optional[uuid.UUID] = Field(
+
+        default=None,
+
+        description="UUID of the generated application email draft, if created."
+
+    )
+
     job_profile_id: Union[uuid.UUID, int, str] = Field(
 
         ...,

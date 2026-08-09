@@ -24,7 +24,8 @@ async def test_generate_outreach_email_success():
         user_id=user_id,
         job_analysis_company="Google",
         job_analysis_role="Engineer",
-        optimized_resume_path="/mock/resume.pdf"
+        optimized_resume_path="/mock/resume.pdf",
+        recruiter_email="recruiter@google.com"
     )
 
     # Assert

@@ -50,6 +50,10 @@ from backend.app.ai.schemas.resume_optimizer_schema import (
 
 )
 
+from backend.app.resume.models.resume_model import ResumeModel
+
+from backend.app.email.models.email_model import EmailDraftModel
+
 
 
 logger = logging.getLogger(__name__)
@@ -339,6 +343,148 @@ class ResumeOptimizerService:
         await self.db.flush()
 
         logger.info(f"Persisted optimized resume version successfully for user: {user_id}")
+
+
+
+        # Phase 7: Recruiter/Application contact information check
+
+        recruiter_email = db_job.recruiter_email
+
+        if not recruiter_email and db_analysis.metadata_json:
+
+            recruiter_email = db_analysis.metadata_json.get("recruiter_email")
+
+
+
+        email_draft_id = None
+
+        import re
+
+        import os
+
+        email_regex = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+
+        if recruiter_email and re.match(email_regex, str(recruiter_email).strip()):
+
+            recruiter_email = str(recruiter_email).strip()
+
+
+
+            # Compile optimized resume file path
+
+            clean_company = re.sub(r"\s+", "", db_job.company_name or "Company")
+
+            clean_role = re.sub(r"\s+", "", db_job.job_title or "Role")
+
+            date_str = datetime.utcnow().strftime("%Y-%m-%d")
+
+            filename = f"{user_id}_{clean_role}_{clean_company}_{date_str}.pdf"
+
+
+
+            # Ensure target storage directory exists
+
+            storage_path = os.path.join(
+
+                os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
+
+                "storage"
+
+            )
+
+            os.makedirs(storage_path, exist_ok=True)
+
+            optimized_resume_path = os.path.join(storage_path, filename)
+
+
+
+            # Retrieve master resume from db
+
+            resume_query = await self.db.execute(
+
+                select(ResumeModel).where(ResumeModel.id == db_profile.resume_id)
+
+            )
+
+            db_resume = resume_query.scalars().first()
+
+
+
+            # Mock PDF generation by copying physical file
+
+            if db_resume and db_resume.file_path and os.path.exists(db_resume.file_path):
+
+                import shutil
+
+                shutil.copy2(db_resume.file_path, optimized_resume_path)
+
+            else:
+
+                with open(optimized_resume_path, "w") as f:
+
+                    f.write(f"Tailored Summary: {final_profile.professional_summary}\nSkills: {', '.join(final_profile.skills)}")
+
+
+
+            # Generate personalized email draft body & subject
+
+            subject = f"Application: {db_job.job_title} at {db_job.company_name}"
+
+            candidate_name = db_profile.full_name or "Candidate"
+
+            body = (
+
+                f"Dear Hiring Team,\n\n"
+
+                f"I hope this message finds you well.\n\n"
+
+                f"I am writing to express my strong interest in the {db_job.job_title} position at {db_job.company_name}. "
+
+                f"With my background in software engineering, technical skills in {', '.join(final_profile.skills[:5])}, "
+
+                f"and professional experience, I am confident in my ability to make a meaningful contribution to your team.\n\n"
+
+                f"Please find my tailored resume attached for your consideration. I would welcome the opportunity to discuss "
+
+                f"how my skills align with your requirements.\n\n"
+
+                f"Best regards,\n"
+
+                f"{candidate_name}"
+
+            )
+
+
+
+            # Create draft record and flush to database
+
+            draft = EmailDraftModel(
+
+                id=uuid.uuid4(),
+
+                user_id=user_id,
+
+                recipient_email=recruiter_email,
+
+                recipient_name=db_job.company_name or "Hiring Team",
+
+                subject=subject,
+
+                body=body,
+
+                attachment_path=optimized_resume_path
+
+            )
+
+            self.db.add(draft)
+
+            await self.db.flush()
+
+            email_draft_id = draft.id
+
+
+
+        response.email_draft_id = email_draft_id
 
 
 

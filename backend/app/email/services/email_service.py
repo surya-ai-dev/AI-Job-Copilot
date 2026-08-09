@@ -24,25 +24,53 @@ class EmailOutreachService:
         recruiter_email: Optional[str] = None
     ) -> EmailDraftModel:
         """Personalize an outreach email draft using job parameters and resume details."""
+        if not recruiter_email:
+            raise ValidationException("No valid recruiter/application email found in job details.", "NO_EMAIL_CONTACT")
+
+        email_regex = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(email_regex, recruiter_email.strip()):
+            raise ValidationException("Invalid recruiter email format.", "INVALID_EMAIL_FORMAT")
+
+        recipient_email = recruiter_email.strip()
+
+        # Query Candidate Profile to personalize the name & skills
+        candidate_name = "Candidate"
+        skills = ["Python", "FastAPI"]
+        try:
+            from backend.app.ai.models.candidate_profile_model import CandidateProfileModel
+            from sqlalchemy.future import select
+            db = getattr(self.email_repo, "db", None)
+            if db:
+                profile_query = await db.execute(
+                    select(CandidateProfileModel).where(CandidateProfileModel.user_id == user_id, CandidateProfileModel.is_active == True)
+                )
+                db_profile = profile_query.scalars().first()
+                if db_profile:
+                    if getattr(db_profile, "full_name", None):
+                        candidate_name = db_profile.full_name
+                    if getattr(db_profile, "skills_json", None) is not None:
+                        skills = db_profile.skills_json[:5]
+        except Exception:
+            pass
+
         subject = f"Application: {job_analysis_role} at {job_analysis_company}"
         body = (
             f"Dear Hiring Team,\n\n"
             f"I hope this message finds you well.\n\n"
             f"I am writing to express my strong interest in the {job_analysis_role} position at {job_analysis_company}. "
-            f"With my background in software development and technical expertise in Python and FastAPI, "
-            f"I am confident in my ability to contribute effectively to your team's goals.\n\n"
-            f"Please find my tailored resume attached for your review. I look forward to the possibility of discussing "
+            f"With my background in software engineering, technical skills in {', '.join(skills)}, "
+            f"and professional experience, I am confident in my ability to make a meaningful contribution to your team.\n\n"
+            f"Please find my tailored resume attached for your consideration. I would welcome the opportunity to discuss "
             f"how my skills align with your requirements.\n\n"
-            f"Best regards,\nCandidate"
+            f"Best regards,\n"
+            f"{candidate_name}"
         )
 
-        recipient_email = recruiter_email or "hiring@company.com"
-        
         draft = EmailDraftModel(
             id=uuid.uuid4(),
             user_id=user_id,
             recipient_email=recipient_email,
-            recipient_name="Hiring Team",
+            recipient_name=job_analysis_company or "Hiring Team",
             subject=subject,
             body=body,
             attachment_path=optimized_resume_path
