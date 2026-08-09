@@ -17,7 +17,73 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # 1. Create resume_optimization_runs table
+    # 1. Create candidate_profiles table
+    op.create_table(
+        'candidate_profiles',
+        sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('resume_id', postgresql.UUID(as_uuid=True), nullable=False),
+
+        sa.Column('full_name', sa.String(length=255), nullable=True),
+        sa.Column('email', sa.String(length=255), nullable=True),
+        sa.Column('phone', sa.String(length=50), nullable=True),
+        sa.Column('linkedin_url', sa.String(length=512), nullable=True),
+        sa.Column('github_url', sa.String(length=512), nullable=True),
+        sa.Column('professional_summary', sa.String(), nullable=True),
+
+        sa.Column('skills_json', sa.JSON(), nullable=False),
+        sa.Column('experience_json', sa.JSON(), nullable=False),
+        sa.Column('projects_json', sa.JSON(), nullable=False),
+        sa.Column('education_json', sa.JSON(), nullable=False),
+        sa.Column('certifications_json', sa.JSON(), nullable=False),
+
+        sa.Column('is_active', sa.Boolean(), nullable=False),
+
+        sa.Column('created_at', sa.DateTime(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), nullable=False),
+
+        sa.ForeignKeyConstraint(
+            ['user_id'],
+            ['users.id'],
+            ondelete='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['resume_id'],
+            ['resumes.id'],
+            ondelete='CASCADE'
+        ),
+        sa.PrimaryKeyConstraint('id')
+    )
+
+    op.create_index(
+        op.f('ix_candidate_profiles_id'),
+        'candidate_profiles',
+        ['id'],
+        unique=False
+    )
+
+    op.create_index(
+        op.f('ix_candidate_profiles_user_id'),
+        'candidate_profiles',
+        ['user_id'],
+        unique=False
+    )
+
+    op.create_index(
+        op.f('ix_candidate_profiles_resume_id'),
+        'candidate_profiles',
+        ['resume_id'],
+        unique=False
+    )
+
+    op.create_index(
+        op.f('ix_candidate_profiles_is_active'),
+        'candidate_profiles',
+        ['is_active'],
+        unique=False
+    )
+
+       # 2. Create resume_optimization_runs table
     op.create_table(
         'resume_optimization_runs',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -28,13 +94,27 @@ def upgrade() -> None:
         sa.Column('status', sa.String(length=50), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('completed_at', sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(['candidate_profile_id'], ['candidate_profiles.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['job_profile_id'], ['jobs.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(
+            ['candidate_profile_id'],
+            ['candidate_profiles.id'],
+            ondelete='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['job_profile_id'],
+            ['jobs.id'],
+            ondelete='CASCADE'
+        ),
         sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_resume_optimization_runs_id'), 'resume_optimization_runs', ['id'], unique=False)
 
-    # 2. Create optimization_iterations table
+    op.create_index(
+        op.f('ix_resume_optimization_runs_id'),
+        'resume_optimization_runs',
+        ['id'],
+        unique=False
+    )
+
+    # 3. Create optimization_iterations table
     op.create_table(
         'optimization_iterations',
         sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
@@ -45,10 +125,20 @@ def upgrade() -> None:
         sa.Column('planning_tasks', sa.JSON(), nullable=False),
         sa.Column('status', sa.String(length=50), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
-        sa.ForeignKeyConstraint(['run_id'], ['resume_optimization_runs.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(
+            ['run_id'],
+            ['resume_optimization_runs.id'],
+            ondelete='CASCADE'
+        ),
         sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_optimization_iterations_id'), 'optimization_iterations', ['id'], unique=False)
+
+    op.create_index(
+        op.f('ix_optimization_iterations_id'),
+        'optimization_iterations',
+        ['id'],
+        unique=False
+    )
 
     # 3. Create optimization_changes table
     op.create_table(
@@ -124,3 +214,22 @@ def downgrade() -> None:
 
     op.drop_index(op.f('ix_resume_optimization_runs_id'), table_name='resume_optimization_runs')
     op.drop_table('resume_optimization_runs')
+
+
+    op.drop_index(
+        op.f('ix_candidate_profiles_is_active'),
+        table_name='candidate_profiles'
+    )
+    op.drop_index(
+        op.f('ix_candidate_profiles_resume_id'),
+        table_name='candidate_profiles'
+    )
+    op.drop_index(
+        op.f('ix_candidate_profiles_user_id'),
+        table_name='candidate_profiles'
+    )
+    op.drop_index(
+        op.f('ix_candidate_profiles_id'),
+        table_name='candidate_profiles'
+    )
+    op.drop_table('candidate_profiles')
